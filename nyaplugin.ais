@@ -1,0 +1,34 @@
+/// @ 0.13.1
+### {
+  name: "猫語化"
+  version: "1.0"
+  author: "artzsan@misskey.design"
+  description: "ノートに直接変更を加える形で「にゃ」を「にゃ」に変換して投稿します。見かけ上の変化ではにゃいためプラグインをオフにしても投稿済みの投稿は人語に戻りません"
+  permissions: ["write:notes"]
+  config: {}
+}
+// objのnullプロパティ(本家対応済みバグ)を再帰的に除去
+@remove_null_property(object) {
+  if Core:type(object) != 'obj' {
+    return object
+  }
+  let new_obj = {}
+  each let kv Obj:kvs(object) {
+    let v = remove_null_property(kv[1])
+    if Core:type(v) != 'null' {
+      Obj:set(new_obj kv[0] v)
+    }
+  }
+  return new_obj
+}
+
+Plugin:register_note_post_interruptor(@(note){
+  note.text = note.text.replace("な", "にゃ")
+  note.text = note.text.replace("ナ", "ニャ")
+  note.text = note.text.replace("na", "nya")
+  note.text = note.text.replace("nA", "nyA")
+  note.text = note.text.replace("Na", "Nya")
+  note.text = note.text.replace("NA", "NYA")
+  note = remove_null_property(note)
+  note
+})
