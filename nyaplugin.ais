@@ -1,11 +1,36 @@
 /// @ 0.13.1
 ### {
   name: "猫語化"
-  version: "1.0"
+  version: "1.1"
   author: "artzsan@misskey.design"
-  description: "ノートに直接変更を加える形で「にゃ」を「にゃ」に変換して投稿します。見かけ上の変化ではにゃいためプラグインをオフにしても投稿済みの投稿は人語に戻りません"
+  description: "ノートに直接変更を加える形で「な」を「にゃ」に変換して投稿します。見かけ上の変化ではないためプラグインをオフにしても投稿済みの投稿は人語に戻りません"
   permissions: ["write:notes"]
-  config: {}
+  config: {
+    ext: {
+      type: 'boolean'
+      label: "強化版"
+      description: "みゃああ"
+      default: false
+    }
+    hiragana: {
+      type: 'boolean'
+      label: "ひらがな"
+      description: "ひらがなを変換する"
+      default: true
+    }
+    katakana: {
+      type: 'boolean'
+      label: "カタカナ"
+      description: "カタカナを変換する"
+      default: true
+    }
+    alphabet: {
+      type: 'boolean'
+      label: "アルファベット"
+      description: "アルファベットを変換する"
+      default: false
+    }
+  }
 }
 // objのnullプロパティ(本家対応済みバグ)を再帰的に除去
 @remove_null_property(object) {
@@ -23,12 +48,24 @@
 }
 
 Plugin:register_note_post_interruptor(@(note){
-  note.text = note.text.replace("な", "にゃ")
-  note.text = note.text.replace("ナ", "ニャ")
-  note.text = note.text.replace("na", "nya")
-  note.text = note.text.replace("nA", "nyA")
-  note.text = note.text.replace("Na", "Nya")
-  note.text = note.text.replace("NA", "NYA")
+  if (Plugin:config.ext) {
+    if (Plugin:config.hiragana) note.text = note.text.replace("ま", "みゃ")
+    if (Plugin:config.katakana) note.text = note.text.replace("マ", "ミャ")
+    if (Plugin:config.alphabet) {
+      note.text = note.text.replace("ma", "mya")
+      note.text = note.text.replace("mA", "myA")
+      note.text = note.text.replace("Ma", "Mya")
+      note.text = note.text.replace("MA", "MYA")
+    }
+  }
+  if (Plugin:config.hiragana) note.text = note.text.replace("な", "にゃ")
+  if (Plugin:config.katakana) note.text = note.text.replace("ナ", "ニャ")
+  if (Plugin:config.alphabet) {
+    note.text = note.text.replace("na", "nya")
+    note.text = note.text.replace("nA", "nyA")
+    note.text = note.text.replace("Na", "Nya")
+    note.text = note.text.replace("NA", "NYA")
+  }
   note = remove_null_property(note)
   note
 })
